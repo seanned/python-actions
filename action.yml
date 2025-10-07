@@ -3,7 +3,7 @@ description: "Reusable action to run SonarQube Analysis for Python code"
 author: "Sebastian Nedelcu"
 
 on:
-  workflow-call:
+  workflow_call:
     inputs: 
       python-version:
         description: "The Python version that is used on the repository"
@@ -17,10 +17,10 @@ on:
       sq-organization:
         description: "SonarQube organization's unique identifier"
         required: true
+    secrets:
       sq-token:
         description: "SonarQube access token"
         required: true
-
 jobs:
   analyze:
     name: SonarCloud Analysis
@@ -56,12 +56,12 @@ jobs:
 
       - name: Run SonarScanner
         env:
-          SONAR_TOKEN: ${{ inputs.sq-token }}
+          SONAR_TOKEN: ${{ secrets.sq-token }}
         run: |
           sonar-scanner \
             -Dsonar.projectKey=${{ inputs.sq-project }} \
             -Dsonar.organization=${{ inputs.sq-organization }} \
             -Dsonar.sources=. \
             -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=$SONAR_TOKEN \
+            -Dsonar.login=${{ secrets.sq-token }} \
             -Dsonar.python.coverage.reportPaths=coverage.xml
