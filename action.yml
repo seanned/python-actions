@@ -2,66 +2,57 @@ name: SonarQube test
 description: "Reusable action to run SonarQube Analysis for Python code"
 author: "Sebastian Nedelcu"
 
-on:
-  workflow_call:
-    inputs: 
-      python-version:
-        description: "The Python version that is used on the repository"
-        required: true
-      requirements-file:
-        description: "The name of the requirements file to be installed"
-        required: true
-      sq-project:
-        description: "SonarQube project's unique identifier"
-        required: true
-      sq-organization:
-        description: "SonarQube organization's unique identifier"
-        required: true
-    secrets:
-      sq-token:
-        description: "SonarQube access token"
-        required: true
-jobs:
-  analyze:
-    name: SonarCloud Analysis
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ inputs.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r ${{ inputs.requirements-file }}
-          pip install coverage pytest
-
-      - name: Download SonarScanner CLI
-        run: |
-          wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner-cli-*.zip
-          mv sonar-scanner-* sonar-scanner
-          echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
-
-      - name: Run tests and generate coverage
-        run: |
-          coverage run -m pytest
-          coverage xml -o "coverage.xml"
-
-      - name: Run SonarScanner
-        env:
-          SONAR_TOKEN: ${{ secrets.sq-token }}
-        run: |
-          sonar-scanner \
-            -Dsonar.projectKey=${{ inputs.sq-project }} \
-            -Dsonar.organization=${{ inputs.sq-organization }} \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.login=${{ secrets.sq-token }} \
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+inputs: 
+  python-version:
+    description: "The Python version that is used on the repository"
+    required: true
+  requirements-file:
+    description: "The name of the requirements file to be installed"
+    required: true
+  sq-project:
+    description: "SonarQube project's unique identifier"
+    required: true
+  sq-organization:
+    description: "SonarQube organization's unique identifier"
+    required: true
+  sq-token:
+    description: "SonarQube access token"
+    required: true
+        
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+	    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+	    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r ${{ inputs.requirements-file }}
+        pip install coverage pytest
+	    - name: Download SonarScanner CLI
+      run: |
+        wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+        unzip sonar-scanner-cli-*.zip
+        mv sonar-scanner-* sonar-scanner
+        echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
+	    - name: Run tests and generate coverage
+      run: |
+        coverage run -m pytest
+        coverage xml -o "coverage.xml"
+	    - name: Run SonarScanner
+      env:
+        SONAR_TOKEN: ${{ secrets.sq-token }}
+      run: |
+        sonar-scanner \
+          -Dsonar.projectKey=${{ inputs.sq-project }} \
+          -Dsonar.organization=${{ inputs.sq-organization }} \
+          -Dsonar.sources=. \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.login=${{ secrets.sq-token }} \
+          -Dsonar.python.coverage.reportPaths=coverage.xml
