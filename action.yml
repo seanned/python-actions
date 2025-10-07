@@ -42,13 +42,6 @@ jobs:
           pip install -r ${{ inputs.requirements-file }}
           pip install coverage pytest
 
-      - name: Cache SonarScanner CLI
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
       - name: Download SonarScanner CLI
         run: |
           wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
@@ -63,12 +56,12 @@ jobs:
 
       - name: Run SonarScanner
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ inputs.sq-token }}
         run: |
           sonar-scanner \
-            -Dsonar.projectKey=${{ inputs.sonar-project-key }} \
-            -Dsonar.organization=${{ inputs.sonar-org }} \
+            -Dsonar.projectKey=${{ inputs.sq-project }} \
+            -Dsonar.organization=${{ inputs.sq-organization }} \
             -Dsonar.sources=. \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=$SONAR_TOKEN \
-            -Dsonar.python.coverage.reportPaths=${{ inputs.coverage-file }}
+            -Dsonar.python.coverage.reportPaths=coverage.xml
