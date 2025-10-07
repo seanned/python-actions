@@ -1,5 +1,5 @@
 name: SonarQube test
-description: "Reusable action to run SonarQube Analysis for Python code
+description: "Reusable action to run SonarQube Analysis for Python code"
 author: "Sebastian Nedelcu"
 
 on:
