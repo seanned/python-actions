@@ -43,11 +43,6 @@ runs:
             exit 1
             ;;
         esac
-
-    - name: Print coverage_arg
-      shell: bash
-      run: |
-        echo ${{ steps.coverage-args.outputs.COVERAGE_ARG }}
         
     - name: Run SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v6
