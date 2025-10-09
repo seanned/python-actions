@@ -2,13 +2,7 @@ name: SonarQube test
 description: "Reusable action to run SonarQube Analysis for Python code"
 author: "Sebastian Nedelcu"
 
-inputs: 
-  python-version:
-    description: "The Python version that is used on the repository"
-    required: true
-  requirements-file:
-    description: "The name of the requirements file to be installed"
-    required: true
+inputs:
   sq-project:
     description: "SonarQube project's unique identifier"
     required: true
@@ -18,6 +12,12 @@ inputs:
   sq-token:
     description: "SonarQube access token"
     required: true
+  coverageReportPath:
+    description: "The path to the coverage report"
+    required: true
+  coverageType:
+    description: "The type of the coverage report. Allowed values: python, csharp"
+    required: true
         
 runs:
   using: "composite"
@@ -26,24 +26,23 @@ runs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-        
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ inputs.python-version }}
-        
-    - name: Install dependencies
+
+    - name: Build Sonar coverage args
+      id: coverage-args
       shell: bash
       run: |
-        python -m pip install --upgrade pip
-        pip install -r ${{ inputs.requirements-file }}
-        pip install coverage pytest
-        
-    - name: Run tests and generate coverage
-      run: |
-        coverage run -m pytest
-        coverage xml -o "coverage.xml"
-      shell: bash
+        case "${{ inputs.coverage-type }}" in
+          python)
+            echo "COVERAGE_ARG=-Dsonar.python.coverage.reportPaths=${{ inputs.coverage-path }}" >> "$GITHUB_OUTPUT"
+            ;;
+          cshap)
+            echo "COVERAGE_ARG=-Dsonar.cs.vscoveragexml.reportsPaths=${{ inputs.coverage-path }}" >> "$GITHUB_OUTPUT"
+            ;;
+          *)
+            echo "Unsupported coverage type: ${{ inputs.coverage-type }}"
+            exit 1
+            ;;
+        esac
       
     - name: Run SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v6
@@ -56,4 +55,4 @@ runs:
           -Dsonar.sources=.
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ inputs.sq-token }}
-          -Dsonar.python.coverage.reportPaths=coverage.xml
+          ${{ steps.coverage-args.outputs.COVERAGE_ARG }}
