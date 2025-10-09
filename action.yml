@@ -12,10 +12,10 @@ inputs:
   sq-token:
     description: "SonarQube access token"
     required: true
-  coverageReportPath:
+  coverage-report-path:
     description: "The path to the coverage report"
     required: true
-  coverageType:
+  coverage-type:
     description: "The type of the coverage report. Allowed values: python, csharp"
     required: true
         
@@ -33,10 +33,10 @@ runs:
       run: |
         case "${{ inputs.coverage-type }}" in
           python)
-            echo "COVERAGE_ARG=-Dsonar.python.coverage.reportPaths=${{ inputs.coverage-path }}" >> "$GITHUB_OUTPUT"
+            echo "COVERAGE_ARG=-Dsonar.python.coverage.reportPaths=${{ inputs.coverage-report-path }}" >> "$GITHUB_OUTPUT"
             ;;
           cshap)
-            echo "COVERAGE_ARG=-Dsonar.cs.vscoveragexml.reportsPaths=${{ inputs.coverage-path }}" >> "$GITHUB_OUTPUT"
+            echo "COVERAGE_ARG=-Dsonar.cs.vscoveragexml.reportsPaths=${{ inputs.coverage-report-path }}" >> "$GITHUB_OUTPUT"
             ;;
           *)
             echo "Unsupported coverage type: ${{ inputs.coverage-type }}"
