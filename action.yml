@@ -53,7 +53,6 @@ runs:
           -Dsonar.projectKey=test-org-1qaz2wsx_python-test
           -Dsonar.organization=test-org-1qaz2wsx
           -Dsonar.sources=.
-          -Dsonar.working.directory=./scanner
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.login=${{ inputs.sq-token }}
           ${{ steps.coverage-args.outputs.COVERAGE_ARG }}
