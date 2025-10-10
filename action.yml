@@ -18,6 +18,10 @@ inputs:
   coverage-type:
     description: "The type of the coverage report. Allowed values: python, csharp"
     required: true
+  sources:
+    description: "The sources"
+    required: false
+    default: "."
         
 runs:
   using: "composite"
@@ -52,7 +56,7 @@ runs:
         args: >
           -Dsonar.projectKey=${{ inputs.sq-project }}
           -Dsonar.organization=${{ inputs.sq-organization }}
-          -Dsonar.sources=.
+          -Dsonar.sources=${{ inputs.sources }}
           -Dsonar.host.url=https://sonarcloud.io
           -Dsonar.token=${{ inputs.sq-token }}
           ${{ steps.coverage-args.outputs.COVERAGE_ARG }}
