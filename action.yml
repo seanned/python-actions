@@ -16,7 +16,7 @@ inputs:
     description: "The path to the coverage report"
     required: true
   coverage-exclusions:
-    description: "The paths (comma-delimited) of the files / directories to exclude from the code covarege
+    description: "The paths (comma-delimited) of the files / directories to exclude from the code covarege"
     required: false
     default: ""
   coverage-type:
